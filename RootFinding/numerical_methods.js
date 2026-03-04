@@ -1,0 +1,1086 @@
+/**
+ * @module numerical_methods
+ */
+
+/**
+ * Namespace for numerical methods.
+ * @namespace
+ * @alias numerical_util
+ * @author Tac Mortensen
+ */
+export const numerical_util = {};
+
+/**
+ * Contains an error tolerance and maximum iteration count that gets supplied to iterative numerical methods.
+ * 
+ * @param {number} error_tolerance The error tolerance of the iterative numerical method. 
+ * Iteration generally stops when the norm of the difference of the current & previous iterations is less than error tolerance.
+ * 
+ * @param {number} max_iterations The maximum iteration count before the iterative numerical method is forced to abort.
+ * This ensures that infinite loops do not occur. Set to {@link Number.MAX_SAFE_INTEGER} by default.
+ * 
+ * @throws TypeError if {@link error_tolerance} is not a number, {@link error_tolerance} is not positive,
+ * or {@link max_iterations} is not a positive integer.
+ * 
+ * @class
+ * @alias numerical_util.continuation_options
+ * @memberof numerical_methods
+ */
+numerical_util.continuation_options = class continuation_options
+{
+  /**
+   * @private
+   * @type number
+   */
+  #error_tolerance;
+
+  /**
+   * @private
+   * @type number
+   */
+  #max_iterations;
+
+  /** @public */
+  constructor(error_tolerance, max_iterations = Number.MAX_SAFE_INTEGER)
+  {
+    // Error tolerance must be number. NaN is considered a number in JS, so including that as another invalid option.
+    if(typeof error_tolerance != "number" || isNaN(error_tolerance))
+    {
+      throw new TypeError(`In numerical_util.continuation_options constructor, error_tolerance must be of type Number. What was supplied: ${typeof error_tolerance} ${error_tolerance}`);
+    }
+
+    // Error tolerance must be a positive number.
+    if(error_tolerance <= 0.0)
+    {
+      throw new RangeError(`In numerical_util.continuation_options constructor, error_tolerance must be positive. What was supplied: ${error_tolerance}`);
+    }
+
+    // Max iterations must be an integer. Can be negative if max iterations shouldn't be employed.
+    if(!Number.isInteger(max_iterations) || max_iterations < 1)
+    {
+      throw new TypeError(`In numerical_util.continuation_options constructor, max_iterations must be a positive integer. What was supplied: ${typeof max_iterations} ${max_iterations}`)
+    }
+
+    // No mishaps, so assign
+    this.#error_tolerance = error_tolerance;
+    this.#max_iterations = max_iterations;
+  }
+
+  /**
+   * The error tolerance supplied to {@link numerical_util.continuation_options continuation_options}.
+   * 
+   * @public
+   * @memberof numerical_util.continuation_options
+   * @type number
+   */
+  get error_tolerance()
+  {
+    return this.#error_tolerance;
+  }
+
+  /**
+   * The maximum allowed iteration count supplied to {@link numerical_util.continuation_options continuation_options}.
+   * 
+   * @public
+   * @memberof numerical_util.continuation_options
+   * @type number
+   */
+  get max_iterations()
+  {
+    return this.#max_iterations;
+  }
+
+  /**
+   * Converts this {@link numerical_util.continuation_options continuation_options} to a string.
+   * 
+   * String format rules:
+   * <ul>
+   *  <li>Starts with left brace.</li>
+   *  <li>String "error_tolerance = " comes next.</li>
+   *  <li>{@link numerical_util.continuation_options#error_tolerance Error tolerance} comes next.</li>
+   *  <li>String ", max_iterations = " comes next.</li>
+   *  <li>{@link numerical_util.continuation_options#max_iterations Max iterations} comes next.</li>
+   *  <li>Ends with right brace.</li>
+   * </ul>
+   * 
+   * Examples include:
+   * <ul>
+   *  <li>{error_tolerance = 0.005, max_iterations = 12}</li>
+   *  <li>{error_tolerance = 0.5, max_iterations = 1024}</li>
+   * </ul>
+   * 
+   * @public
+   * @memberof numerical_util.continuation_options
+   * 
+   * @returns {string} A string that fulfills the above format.
+   */
+  toString()
+  {
+    return `{error_tolerance = ${this.#error_tolerance}, max_iterations = ${this.#max_iterations}}`;
+  }
+};
+
+/**
+ * Stores the result of a numerical method and whether the numerical method completed successfully or was interrupted mid-way.
+ * 
+ * @param {any} result Result of numerical method.
+ * @param {boolean} completed Whether numerical method completed successfully or was interrupted mid-way,
+ * likely due to a given maximum iteration count being exceeded. Default value is true.
+ * 
+ * @throws TypeError if {@link completed} is not a boolean value.
+ * 
+ * @class
+ * @alias numerical_util.numerical_results
+ * @memberof numerical_methods
+ */
+numerical_util.numerical_results = class numerical_results
+{
+  /**
+   * @private
+   * @type any
+   */
+  #result;
+
+  /**
+   * @private
+   * @type boolean
+   */
+  #completed;
+
+  /** @public */
+  constructor(result, completed = true)
+  {
+    // completed must be boolean
+    if(typeof(completed) !== "boolean")
+    {
+      throw new TypeError(`In numerical_util.numerical_results constructor, second argument must be boolean. What was supplied: ${typeof completed} ${completed}`);
+    }
+
+    // No mishaps, so assign
+    this.#result = result;
+    this.#completed = completed;
+  }
+
+  /**
+   * Numerical result supplied to {@link numerical_util.numerical_results numerical_results}.
+   * 
+   * @public
+   * @memberof numerical_util.numerical_results
+   * @type any
+   */
+  get result()
+  {
+    return this.#result;
+  }
+
+  /**
+   * Whether numerical method completed without interruption.
+   * 
+   * @public
+   * @memberof numerical_util.numerical_results
+   * @type boolean
+   */
+  get completed()
+  {
+    return this.#completed;
+  }
+
+  /**
+   * Converts this {@link numerical_util.numerical_results numerical_results} to a string.
+   * 
+   * String format rules:
+   * <ul>
+   *  <li>Starts with left brace.</li>
+   *  <li>String "result = " comes next.</li>
+   *  <li>{@link numerical_util.numerical_results#result Result} comes next.</li>
+   *  <li>String ", max_iterations = " comes next.</li>
+   *  <li>{@link numerical_util.numerical_results#completed Completed} comes next.</li>
+   *  <li>Ends with right brace.</li>
+   * </ul>
+   * 
+   * Examples include:
+   * <ul>
+   *  <li>{result = 1.414, completed = true}</li>
+   *  <li>{result = -1, completed = false}</li>
+   * </ul>
+   * 
+   * @public
+   * @memberof numerical_util.numerical_results
+   * 
+   * @returns {string} A string that fulfills the above format.
+   */
+  toString()
+  {
+    return `{result = ${this.#result}, completed = ${this.#completed}}`;
+  }
+};
+
+/**
+ * Namespace for single-variable root-finders.
+ * @namespace
+ * @alias root_finders
+ * @author Tac Mortensen
+ */
+export const root_finders = {};
+
+/**
+ * Bisection method, a linear, bracketed root finder.
+ * <br><br>
+ * 
+ * As in all bracketed root finders, supplied {@link guess} must be a two-number array that satisfies the Intermediate Value Theorem,
+ * meaning that given function f and interval [a, b], f(a) and f(b) must have opposite signs.
+ * <br><br>
+ * 
+ * Iterations work as follows:
+ * <ul>
+ *  <li>Calculate midpoint, m, of previous iteration (supplied guess if first iteration).</li>
+ *  <li>If sign of f(m) agrees with sign of f(a), then assign a to m; otherwise, assign b to m;</li>
+ *  <li>Resulting interval is next iteration.</li>
+ *  <ul>
+ *    <li>If tracking y-error (default), then cease iteration if either |f(m)| < tol, or iterations >= max_iterations.</li>
+ *    <li>If tracking x-error, then cease iteration if either interval length < tol, or iterations >= max_iterations.</li>
+ *  </ul>
+ * </ul>
+ * 
+ * Preferable when guaranteed convergence is desired; however, convergence is linear and therefore slow.
+ * Successive errors are given by E_{k + 1} = 0.5E_k.
+ * <br><br>
+ * 
+ * Given {@link numerical_util.continuation_options#error_tolerance error tolerance} tol and
+ * interval length L, it takes exactly ceil(log_2(L / tol)) iterations
+ * where log_2 is log base 2, and ceil is the ceiling function, to converge.
+ * <br><br>
+ * 
+ * <b>WARNING</b>: For convergence to be guaranteed, supplied {@link guess} must satisfy the Intermediate Value Theorem
+ * as described above, and the function {@link f} must be continuous.
+ * <br><br>
+ * 
+ * <b>WARNING</b>: Function mutates the elements of {@link guess} to match the ending interval. If the original {@link guess}
+ * cannot be mutated, then it is recommended to deep-copy it first, then pass the clone to this function.
+ * 
+ * @function
+ * @memberof root_finders
+ * 
+ * @param {function} f The function to find a root of.
+ * 
+ * @param {Array<number>} guess The interval that satisfies the Intermediate Value Theorem to pass as the initial guess.
+ * 
+ * @param {numerical_util.continuation_options} options The {@link numerical_util.continuation_options continuation options}
+ * to supply.
+ * 
+ * @param {boolean} error_in_y Whether to cease iteration based on error in y or error in x as described above.
+ * 
+ * @returns {numerical_util.numerical_results} A {@link numerical_util.numerical_results numerical_results} object
+ * that contains the resultant interval
+ * and whether it satisfies the {@link numerical_util.continuation_options#error_tolerance error tolerance}.
+ * 
+ * @throws TypeError if any of the following predicates are met:
+ * <ul>
+ *  <li>{@link f} is not a function;</li>
+ *  <li>{@link guess} is not a two-number array;</li>
+ *  <li>{@link guess} does not satisfy the Intermediate Value Theorem as described above;</li>
+ *  <li>{@link options} is not an instance of {@link numerical_util.continuation_options continuation_options};</li>
+ *  <li>{@link error_in_y} is not a boolean variable.</li>
+ * </ul>
+ * 
+ * @see {@link root_finders.regula_falsi regula_falsi} for a quicker method that guarantees convergence
+ * but has superlinear convergence with respect to the golden ratio that also guarantees convergence.
+ */
+root_finders.bisection_method = (f, guess, options, error_in_y = true) =>
+{
+  // f must be a function
+  if(typeof f !== "function")
+  {
+    throw new TypeError(`In root_finders.bisection_method function, first parameter must be a function. What was supplied: ${typeof f} ${f}`);
+  }
+
+  // guess must be two-number array
+  if(!Array.isArray(guess) || guess.length !== 2 || typeof(guess[0]) !== "number" || typeof(guess[1]) !== "number")
+  {
+    throw new TypeError(`In root_finders.bisection_method function, second parameter must be an array of two numbers. What was supplied: ${guess}`);
+  }
+
+  // options must be continuation_options
+  if(!(options instanceof numerical_util.continuation_options))
+  {
+    throw new TypeError(`In root_finders.bisection_method function, third parameter must be an instance of root_finders.continuation_options. What was supplied: ${options}`);
+  }
+
+  // error_in_y must be boolean
+  if(typeof(error_in_y) !== "boolean")
+  {
+    throw new TypeError(`In root_finders.bisection_method function, fourth parameter must be a boolean variable. What was supplied: ${typeof error_in_y} ${error_in_y}`)
+  }
+
+  // Cache f(lower & upper bounds)
+  /** @type number */
+  const f_lb = f(guess[0]);
+
+  /** @type number */
+  const f_ub = f(guess[1]);
+
+  // Don't perform any iterations if f(either endpoint) is zero
+  if(f_lb === 0.0 || f_ub === 0.0) return new numerical_util.numerical_results(guess, true);
+
+  // Cache signs of f(lower & upper bounds)
+  /** @type boolean */
+  const lb_sign = f_lb > 0.0;
+
+  /** @type boolean */
+  const ub_sign = f_ub > 0.0;
+
+  // Intermediate Value Theorem must be satisfied
+  if(!(lb_sign ^ ub_sign))
+  {
+    throw new TypeError(`Initial guess for a bracketed root finder must satisfy Intermediate Value Theorem. Interval supplied: ${guess}`);
+  }
+
+  // Already starting w/ first iteration, so setting counter to 1
+  /** @type number */
+  let counter = 1;
+
+  // Using a + (b - a) / 2 instead of (a + b) / 2 in case a and b are very close to reduce round-off error
+  /** @type number */
+  let midpoint = guess[0] + 0.5 * (guess[1] - guess[0]);
+
+  // Cache f(midpoint)
+  /** @type number */
+  let f_midpoint = f(midpoint);
+
+  // Decide which endpoint becomes the midpoint for the next iteration
+  /** @type boolean */
+  let change_upper_bound = lb_sign ^ (f_midpoint > 0.0);
+  if(change_upper_bound) guess[1] = midpoint;
+  else guess[0] = midpoint;
+
+  // Continue iterating if either counter < max_iterations, or error tolerance is satisfied
+  while(
+    counter < options.max_iterations
+    && f_midpoint !== 0.0
+    && Math.abs((1 - error_in_y) * (guess[1] - guess[0]) + error_in_y * f_midpoint) > options.error_tolerance)
+  {
+    // Perform the same logic as above
+    midpoint = guess[0] + 0.5 * (guess[1] - guess[0]);
+    f_midpoint = f(midpoint);
+    change_upper_bound = lb_sign ^ (f_midpoint > 0.0);
+
+    if(change_upper_bound) guess[1] = midpoint;
+    else guess[0] = midpoint;
+
+    // Increment counter
+    ++counter;
+  }
+
+  // return numerical_results object w/ results
+  return new numerical_util.numerical_results(guess, counter < options.max_iterations);
+};
+
+/**
+ * Regula falsi, aka method of false position, a superlinear, bracketed root finder.
+ * <br><br>
+ * 
+ * As in all bracketed root finders, supplied {@link guess} must be a two-number array that satisfies the Intermediate Value Theorem,
+ * meaning that given function f and interval [a, b], f(a) and f(b) must have opposite signs.
+ * <br><br>
+ * 
+ * Iterations work as follows:
+ * <ul>
+ *  <li>Given that x_1 is the previous c, and x_0 is the other point on the previous iteration, calculate
+ * c = x_1 - (x_1 - x_0) / (f(x_1) - f(x_0)) * f(x_1).</li>
+ *  <li>If sign of f(c) agrees with sign of f(a), then assign a to m; otherwise, assign b to m;</li>
+ *  <li>Resulting interval is next iteration.</li>
+ *  <ul>
+ *    <li>If tracking y-error (default), then cease iteration if either |f(c)| < tol, or iterations >= max_iterations.</li>
+ *    <li>If tracking x-error, then cease iteration if either interval length < tol, or iterations >= max_iterations.</li>
+ *  </ul>
+ * </ul>
+ * 
+ * Preferable when guaranteed convergence is desired, and a relatively small interval is supplied;
+ * however, convergence is superlinear and therefore slower than quadratic but faster than linear.
+ * Successive errors are given by E_{k + 1} = C * E_k^phi where phi is the golden ratio, approximately 1.618.
+ * <br><br>
+ * 
+ * <b>WARNING</b>: For convergence to be guaranteed, supplied {@link guess} must satisfy the Intermediate Value Theorem
+ * as described above, and the function {@link f} must be continuous.
+ * <br><br>
+ * 
+ * <b>WARNING</b>: Function mutates the elements of {@link guess} to match the ending interval. If the original {@link guess}
+ * cannot be mutated, then it is recommended to deep-copy it first, then pass the clone to this function.
+ * 
+ * @function
+ * @memberof root_finders
+ * 
+ * @param {function} f The function to find a root of.
+ * 
+ * @param {Array<number>} guess The interval that satisfies the Intermediate Value Theorem to pass as the initial guess.
+ * 
+ * @param {numerical_util.continuation_options} options The {@link numerical_util.continuation_options continuation_options} to supply.
+ * 
+ * @param {boolean} error_in_y Whether to cease iteration based on error in y or error in x as described above.
+ * 
+ * @returns {numerical_util.numerical_results} A {@link numerical_util.numerical_results numerical_results} object
+ * that contains the resultant interval and whether it satisfies
+ * the {@link numerical_util.continuation_options#error_tolerance error tolerance}.
+ * 
+ * @throws TypeError if any of the following predicates are met:
+ * <ul>
+ *  <li>{@link f} is not a function;</li>
+ *  <li>{@link guess} is not a two-number array;</li>
+ *  <li>{@link guess} does not satisfy the Intermediate Value Theorem as described above;</li>
+ *  <li>{@link options} is not an instance of {@link numerical_util.continuation_options continuation_options};</li>
+ *  <li>{@link error_in_y} is not a boolean variable.</li>
+ * </ul>
+ * 
+ * @see {@link root_finders.secant_method secant_method} for a bracketed superlinear root-finder with the same
+ * iteration formula as regula falsi but doesn't check bounds on each step and therefore doesn't guarantee convergence
+ * but has the potential to be faster to converge.
+ * 
+ * @see {@link root_finders.bisection_method bisection_method} for a linear, bracketed root-finder
+ * that is also guaranteed to converge.
+ * 
+ * @see {@link root_finders.newtons_method newtons_method} for a fast, quadratic root-finder but with no guaranteed convergence
+ * and requires derivative information.
+ */
+root_finders.regula_falsi = (f, guess, options, error_in_y = true) =>
+{
+  // f must be a function
+  if(typeof f !== "function")
+  {
+    throw new TypeError(`In root_finders.regula_falsi function, first parameter must be a function. What was supplied: ${typeof f} ${f}`);
+  }
+
+  // guess must be two-number array
+  if(!Array.isArray(guess) || guess.length !== 2 || typeof(guess[0]) !== "number" || typeof(guess[1]) !== "number")
+  {
+    throw new TypeError(`In root_finders.regula_falsi function, second parameter must be an array of two numbers. What was supplied: ${guess}`);
+  }
+
+  // options must be continuation_options
+  if(!(options instanceof numerical_util.continuation_options))
+  {
+    throw new TypeError(`In root_finders.regula_falsi function, third parameter must be an instance of root_finders.continuation_options. What was supplied: ${options}`);
+  }
+
+  // error_in_y must be a boolean variable
+  if(typeof(error_in_y) !== "boolean")
+  {
+    throw new TypeError(`In root_finders.regula_falsi function, fourth parameter must be a boolean variable. What was supplied: ${typeof error_in_y} ${error_in_y}`)
+  }
+
+  // Cache f(lower & upper bounds)
+  /** @type number */
+  let fa = f(guess[0]);
+
+  /** @type number */
+  let fb = f(guess[1]);
+
+  // Don't perform any iterations if f(either endpoint) is zero
+  if(fa === 0.0 || fb === 0.0) return new numerical_util.numerical_results(guess, true);
+
+  // Cache signs of both endpoints
+  /** @type boolean */
+  const lb_sign = fa > 0.0;
+
+  /** @type boolean */
+  const ub_sign = fb > 0.0;
+
+  // Intermediate Value Theorem must be satisfied
+  if(!(lb_sign ^ ub_sign))
+  {
+    throw new TypeError(`Initial guess for a bracketed root finder must satisfy Intermediate Value Theorem. Interval supplied: ${guess}`);
+  }
+
+  // Already starting w/ first iteration, so set to 1
+  /** @type number */
+  let counter = 1;
+
+  // Next iteration, c
+  /** @type number */
+  let c = guess[1] - (guess[1] - guess[0]) / (fb - fa) * fb;
+
+  // Cache f(next iteration)
+  /** @type number */
+  let fc = f(c);
+
+  // Decide which endpoint becomes the current iteration for the next iteration
+  /** @type number */
+  let change_upper_bound = lb_sign ^ (fc > 0.0);
+
+  if(change_upper_bound)
+  {
+    guess[1] = c;
+    fb = fc;
+  }
+
+  else
+  {
+    guess[0] = c;
+    fa = fc;
+  }
+
+  // Continue iterating if counter has not yet met max_iterations, and error tolerance is not yet satisfied
+  while(counter < options.max_iterations
+    && fc !== 0.0
+    && Math.abs((1 - error_in_y) * (guess[1] - guess[0]) + error_in_y * fc) > options.error_tolerance)
+  {
+    // Next iteration depends on which endpoint is the previous iteration; otherwise, use same logic as above
+    c = change_upper_bound
+      ? guess[1] - (guess[1] - guess[0]) / (fb - fa) * fb
+      : guess[0] - (guess[1] - guess[0]) / (fb - fa) * fa;
+
+    fc = f(c);
+    change_upper_bound = lb_sign ^ (fc > 0.0);
+
+    if(change_upper_bound)
+    {
+      guess[1] = c;
+      fb = fc;
+    }
+
+    else
+    {
+      guess[0] = c;
+      fa = fc;
+    }
+
+    ++counter;
+  }
+
+  // return numerical_results object w/ results
+  return new numerical_util.numerical_results(guess, counter < options.max_iterations);
+};
+
+/**
+ * Newton's method, a quadratic, non-bracketed root finder.
+ * <br><br>
+ * 
+ * Given that {@link df} is the derivative of {@link f}, iterations work as follows:
+ * <ul>
+ *  <li>x_{k + 1} = x_k - f(x_k) / df(x_k)<li>
+ *  <ul>
+ *    <li>If tracking y-error (default), then cease iteration if either |f(x_k)| < tol, or iterations >= max_iterations.</li>
+ *    <li>If tracking x-error, then cease iteration if either |x_k - x_(k - 1)| < tol, or iterations >= max_iterations.</li>
+ *  </ul>
+ * </ul>
+ * 
+ * Preferable when fast, quadratic convergence is desired, and a {@link guess} relatively close to a root is given.
+ * Successive errors are given by E_{k + 1} = C * E_k^2.
+ * <br><br>
+ * 
+ * <b>WARNING</b>: Only gives linear convergence if a root of multiplicity higher than one is being determined.
+ * For such a root, it is recommended instead to use modified Newton's method that requires more functional evaluations
+ * but gives quadratic convergence in such a case.
+ * <br><br>
+ * 
+ * <b>WARNING</b>: Convergence is not guaranteed. Function {@link f} must be differentiable, and initial {@link guess}
+ * must be close enough to the actual root. It is recommended to use other root-finders
+ * such as {@link root_finders.bisection_method bisection_method} or {@link root_finders.regula_falsi regula_falsi}
+ * to get sufficiently close to a guess for Newton's method and verify that Newton's method still converges after supplication.
+ * 
+ * @function
+ * @memberof root_finders
+ * 
+ * @param {function} f The function to find a root of.
+ * 
+ * @param {function} df The derivative of the function to find a root of. <b>WARNING</b>: Unpredictable results apply
+ * if df is not sufficiently close to the derivative of {@link f}. Derivative-free methods like
+ * {@link root_finders.regula_falsi regula_falsi} should be used when information of the derivative does not come easily or is unknown.
+ * 
+ * @param {number} guess The initial guess to supply.
+ * 
+ * @param {numerical_util.continuation_options} options The {@link numerical_util.continuation_options continuation_options} to supply.
+ * 
+ * @param {boolean} error_in_y Whether to cease iteration based on error in y or error in x as described above.
+ * 
+ * @returns {numerical_util.numerical_results} A {@link numerical_util.numerical_results numerical_results} object
+ * that contains the resultant interval and whether it satisfies the
+ * {@link numerical_util.continuation_options#error_tolerance error tolerance}.
+ * 
+ * @throws TypeError if any of the following predicates are met:
+ * <ul>
+ *  <li>{@link f} is not a function;</li>
+ *  <li>{@link df} is not a function;</li>
+ *  <li>{@link guess} is not a number;</li>
+ *  <li>{@link options} is not an instance of {@link numerical_util.continuation_options continuation_options};</li>
+ *  <li>{@link error_in_y} is not a boolean variable.</li>
+ * </ul>
+ * 
+ * @see {@link root_finders.regula_falsi regula_falsi} for a bracketed superlinear root-finder that approximates {@link df}
+ * as a secant line's slope when derivative information is not easily attainable and guarantees convergence. A good choice
+ * as an intermediary root-finder to find guesses sufficiently close to roots to supply Newton's method.
+ * 
+ * @see {@link root_finders.bisection_method bisection_method} for a linear, bracketed root-finder
+ * that is also guaranteed to converge.
+ * 
+ * @see {@link root_finders.modified_newtons_method modified_newtons_method} for a fast, quadratic root-finder
+ * that is preferable to use on roots of non-singular multiplicity.
+ */
+root_finders.newtons_method = (f, df, guess, options, error_in_y = true) =>
+{
+  // f must be a function
+  if(typeof f !== "function")
+  {
+    throw new TypeError(`In root_finders.newtons_method function, first parameter must be a function. What was supplied: ${typeof f} ${f}`);
+  }
+
+  // df must be a function
+  if(typeof df !== "function")
+  {
+    throw new TypeError(`In root_finders.newtons_method function, second parameter must be a function. What was supplied: ${typeof df} ${df}`);
+  }
+
+  // guess must be two-number array
+  if(typeof(guess) !== "number")
+  {
+    throw new TypeError(`In root_finders.newtons_method function, third parameter must be a number. What was supplied: ${typeof guess} ${guess}`);
+  }
+
+  // options must be continuation_options
+  if(!(options instanceof numerical_util.continuation_options))
+  {
+    throw new TypeError(`In root_finders.newtons_method function, fourth parameter must be an instance of root_finders.continuation_options. What was supplied: ${options}`);
+  }
+
+  // error_in_y must be a boolean variable
+  if(typeof(error_in_y) !== "boolean")
+  {
+    throw new TypeError(`In root_finders.newtons_method function, fifth parameter must be a boolean variable. What was supplied: ${typeof error_in_y} ${error_in_y}`)
+  }
+
+  // Cache previous functional evaluation
+  /** @type number */
+  let f_prev = f(guess);
+
+  // Don't perform any iterations if f(guess) is zero
+  if(f_prev === 0.0) return new numerical_util.numerical_results(guess, true);
+
+  // Already starting w/ first iteration, so set counter to 1
+  /** @type number */
+  let counter = 1;
+
+  // Next iteration
+  /** @type number */
+  let c = guess - f_prev / df(guess);
+
+  // Cache functional value of next iteration
+  f_prev = f(c)
+
+  // If error_in_y is false, must track previous iteration, so logic changes enough to warrant a different branch entirely
+  if(error_in_y)
+  {
+    while(counter < options.max_iterations && Math.abs(f_prev) > options.error_tolerance)
+    {
+      // Apply same logic as above
+      c -= f_prev / df(c);
+      f_prev = f(c);
+
+      // Increment counter
+      ++counter;
+    }
+  }
+
+  else
+  {
+    /** @type number */
+    let prev_c = guess;
+
+    while(counter < options.max_iterations && Math.abs(c - prev_c) > options.error_tolerance)
+    {
+      // Update previous value of c
+      prev_c = c;
+
+      // Apply same logic as above
+      c -= f_prev / df(c);
+      f_prev = f(c);
+
+      // Increment counter
+      ++counter;
+    }
+  }
+
+  // return numerical_results object w/ results
+  return new numerical_util.numerical_results(c, counter < options.max_iterations);
+};
+
+/**
+ * Secant method, a superlinear, non-bracketed root finder.
+ * <br><br>
+ * 
+ * Supplied {@link guess} must be a two-number array. While not a bracketed root-finder, it is recommended that {@link guess}
+ * satisfies the Intermediate Value Theorem, meaning that given function f and interval [a, b], f(a) and f(b) must have opposite signs.
+ * <br><br>
+ * 
+ * Iterations work as follows:
+ * <ul>
+ *  <li>x_{k + 1} = x_k - (x_k - x_{k - 1}) / (f(x_k) - f(x_{k - 1})) * f(x_k).</li>
+ *  <ul>
+ *    <li>If tracking y-error (default), then cease iteration if either |f(c)| < tol, or iterations >= max_iterations.</li>
+ *    <li>If tracking x-error, then cease iteration if either interval length < tol, or iterations >= max_iterations.</li>
+ *  </ul>
+ * </ul>
+ * 
+ * Preferable when derivative information is not given, and a relatively small interval is supplied;
+ * however, convergence is superlinear and therefore slower than quadratic but faster than linear.
+ * Successive errors are given by E_{k + 1} = C * E_k^phi where phi is the golden ratio, approximately 1.618.
+ * <br><br>
+ * 
+ * <b>WARNING</b>: Convergence is not guaranteed. Initial {@link guess} must be close enough to the actual root.
+ * It is recommended to use other root-finders such as {@link root_finders.bisection_method bisection_method}
+ * to get sufficiently close to a guess for the secant method and verify that the secant method still converges after supplication.
+ * <br><br>
+ * 
+ * <b>WARNING</b>: Function does mutate the elements of {@link guess} to match the ending interval. If the original {@link guess}
+ * cannot be mutated, then it is recommended to deep-copy it first, then pass the clone to this function.
+ * 
+ * @function
+ * @memberof root_finders
+ * 
+ * @param {function} f The function to find a root of.
+ * 
+ * @param {Array<number>} guess The interval to pass as the initial guess.
+ * 
+ * @param {numerical_util.continuation_options} options The {@link numerical_util.continuation_options continuation_options} to supply.
+ * 
+ * @param {boolean} error_in_y Whether to cease iteration based on error in y or error in x as described above.
+ * 
+ * @returns {numerical_util.numerical_results} A {@link numerical_util.numerical_results numerical_results} object
+ * that contains the resultant approximation of a root and whether it satisfies the
+ * {@link numerical_util.continuation_options#error_tolerance error tolerance}.
+ * 
+ * @throws TypeError if any of the following predicates are met:
+ * <ul>
+ *  <li>{@link f} is not a function;</li>
+ *  <li>{@link guess} is not a two-number array;</li>
+ *  <li>{@link options} is not an instance of {@link root_finders.continuation_options continuation_options};</li>
+ *  <li>{@link error_in_y} is not a boolean variable.</li>
+ * </ul>
+ * 
+ * @see {@link root_finders.regula_falsi regula_falsi} for a bracketed superlinear root-finder with the same
+ * iteration formula as the secant method but checks bounds on each step and therefore guarantees convergence
+ * but tends to be slower to converge due to the additional checks.
+ * 
+ * @see {@link root_finders.bisection_method bisection_method} for a linear, bracketed root-finder that is slower
+ * than the secant method but is guaranteed to converge and often serves as a good intermediary root finder for the secant method.
+ * 
+ * @see {@link root_finders.newtons_method newtons_method} for a fast, quadratic root-finder but with no guaranteed convergence
+ * and requires derivative information.
+ */
+root_finders.secant_method = (f, guess, options, error_in_y = true) =>
+{
+  // f must be a function
+  if(typeof f !== "function")
+  {
+    throw new TypeError(`In root_finders.secant_method function, first parameter must be a function. What was supplied: ${typeof f} ${f}`);
+  }
+
+  // guess must be two-number array
+  if(!Array.isArray(guess) || guess.length !== 2 || typeof(guess[0]) !== "number" || typeof(guess[1]) !== "number")
+  {
+    throw new TypeError(`In root_finders.secant_method function, second parameter must be an array of two numbers. What was supplied: ${guess}`);
+  }
+
+  // options must be continuation_options
+  if(!(options instanceof numerical_util.continuation_options))
+  {
+    throw new TypeError(`In root_finders.secant_method function, third parameter must be an instance of root_finders.continuation_options. What was supplied: ${options}`);
+  }
+
+  // error_in_y must be a boolean variable
+  if(typeof(error_in_y) !== "boolean")
+  {
+    throw new TypeError(`In root_finders.secant_method function, fourth parameter must be a boolean variable. What was supplied: ${typeof error_in_y} ${error_in_y}`)
+  }
+
+  // Cache f(lower & upper bounds)
+  /** @type number */
+  let fa = f(guess[0]);
+
+  /** @type number */
+  let fb = f(guess[1]);
+
+  // Don't perform any iterations if f(either endpoint) is zero
+  if(fa === 0.0 || fb === 0.0) return new numerical_util.numerical_results(guess, true);
+
+  // Already starting w/ first iteration, so set to 1
+  /** @type number */
+  let counter = 1;
+
+  // Next iteration, c
+  /** @type number */
+  let c = guess[1] - (guess[1] - guess[0]) / (fb - fa) * fb;
+
+  // Cache f(next iteration)
+  /** @type number */
+  let fc = f(c);
+
+  // Update iterations
+  guess[0] = guess[1];
+  guess[1] = c;
+
+  fa = fb;
+  fb = fc;
+
+  // Continue iterating if counter has not yet met max_iterations, and error tolerance is not yet satisfied.
+  while(
+    counter < options.max_iterations
+    && Math.abs((1 - error_in_y) * (guess[1] - guess[0]) + error_in_y * fc) > options.error_tolerance)
+  {
+    // Use same logic as above
+    c = guess[1] - (guess[1] - guess[0]) / (fb - fa) * fb;
+    fc = f(c);
+
+    // Update iterations
+    guess[0] = guess[1];
+    guess[1] = c;
+
+    fa = fb;
+    fb = fc;
+
+    // Increment counter
+    ++counter;
+  }
+
+  // return numerical_results object w/ results
+  return new numerical_util.numerical_results(c, counter < options.max_iterations);
+};
+
+/**
+ * Modified Newton's method, a quadratic, non-bracketed root finder. Used in place of {@link root_finders.newtons_method newtons_method}
+ * when multiplicity of root is not one; in other words, when f'(root) is also zero. Takes more functional evaluations
+ * than the standard Newton's method and second-derivative information when the multiplicity is not known (default case).
+ * <br><br>
+ * 
+ * Given that {@link df} is the derivative of {@link f}, and {@link d2f} is the second derivative of {@link f},
+ * if the multiplicity m is known and given, then the iterations work as follows:
+ * <ul>
+ *  <li>x_{k + 1} = x_k - m * f(x_k) / df(x_k)</li>
+ *  <ul>
+ *    <li>If tracking y-error (default), then cease iteration if either |f(x_k)| < tol, or iterations >= max_iterations.</li>
+ *    <li>If tracking x-error, then cease iteration if either |x_k - x_(k - 1)| < tol, or iterations >= max_iterations.</li>
+ *  </ul>
+ * </ul>
+ * 
+ * If the multiplicity m is not given, then the iterations work as follows:
+ * <ul>
+ *  <li>x_{k + 1} = x_k - f(x_k) * df(x_k) / ((df(x_k))^2 - f(x_k) * d2f(x_k))</li>
+ *  <ul>
+ *    <li>If tracking y-error (default), then cease iteration if either |f(x_k)| < tol, or iterations >= max_iterations.</li>
+ *    <li>If tracking x-error, then cease iteration if either |x_k - x_(k - 1)| < tol, or iterations >= max_iterations.</li>
+ *  </ul>
+ * </ul>
+ * 
+ * Preferable when fast, quadratic convergence is desired, and a {@link guess} relatively close to a root is given,
+ * and the root has non-singular multiplicity as described above. Successive errors are given by E_{k + 1} = C * E_k^2.
+ * <br><br>
+ * 
+ * <b>WARNING</b>: Convergence is not guaranteed. Function {@link f} must be differentiable, and initial {@link guess}
+ * must be close enough to the actual root. It is recommended to use other root-finders
+ * such as {@link root_finders.bisection_method bisection_method} to get sufficiently close to a guess for Newton's method
+ * and verify that Newton's method still converges after supplication.
+ * 
+ * @function
+ * @memberof root_finders
+ * 
+ * @param {function} f The function to find a root of.
+ * 
+ * @param {function} df The derivative of the function to find a root of. <b>WARNING</b>: Unpredictable results apply
+ * if df is not sufficiently close to the derivative of {@link f}. Derivative-free methods like
+ * {@link regula_falsi} should be used when information of the derivative does not come easily or is unknown.
+ * 
+ * @param {number} guess The initial guess to supply.
+ * 
+ * @param {numerical_util.continuation_options} options The {@link numerical_util.continuation_options continuation_options} to supply.
+ * 
+ * @param {boolean} error_in_y Whether to cease iteration based on error in y or error in x as described above.
+ * 
+ * @param {function} d2f The second derivative of the function to find a root of. Default value is null.
+ * <b>WARNING</b>: Unpredictable results apply if d2f is not sufficiently close to the second derivative of {@link f}.
+ * 
+ * @param {number} multiplicity The multiplicity of the root to find. Default value is null.
+ * <b>WARNING</b>: One of {@link d2f} or multiplicity must be given, or the function will throw.
+ * 
+ * @returns {numerical_util.numerical_results} A {@link numerical_util.numerical_results numerical_results} object
+ * that contains the resultant interval and whether it satisfies
+ * the {@link numerical_util.continuation_options#error_tolerance error tolerance}.
+ * 
+ * @throws TypeError if any of the following predicates are met:
+ * <ul>
+ *  <li>{@link f} is not a function;</li>
+ *  <li>{@link df} is not a function;</li>
+ *  <li>{@link guess} is not a number;</li>
+ *  <li>{@link options} is not an instance of {@link root_finders.continuation_options};</li>
+ *  <li>{@link error_in_y} is not a boolean variable.</li>
+ *  <li>Neither {@link d2f} nor {@link multiplicity} are usable (neither undefined nor null);</li>
+ *  <li>{@link multiplicity} is not a number if it is usable;</li>
+ *  <li>{@link d2f} is not a function if it is usable, and {@link multiplicity} is not usable.</li>
+ * </ul>
+ * 
+ * @see {@link root_finders.newtons_method newtons_method} for a fast, quadratic root-finder that is preferable to use
+ * when the multiplicity of the root is singular.
+ * 
+ * @see {@link root_finders.bisection_method bisection_method} for a linear, bracketed root-finder that is also guaranteed to converge.
+ * Serves as a good choice for an intermediary root-finder before using modified Newton's method.
+ */
+root_finders.modified_newtons_method = (f, df, guess, options, error_in_y = true, d2f = null, multiplicity = null) =>
+{
+  // f must be a function
+  if(typeof f !== "function")
+  {
+    throw new TypeError(`In root_finders.modified_newtons_method function, first parameter must be a function. What was supplied: ${typeof f} ${f}`);
+  }
+
+  // df must be a function
+  if(typeof df !== "function")
+  {
+    throw new TypeError(`In root_finders.modified_newtons_method function, second parameter must be a function. What was supplied: ${typeof df} ${df}`);
+  }
+
+  // guess must be two-number array
+  if(typeof(guess) !== "number")
+  {
+    throw new TypeError(`In root_finders.modified_newtons_method function, third parameter must be a number. What was supplied: ${typeof guess} ${guess}`);
+  }
+
+  // options must be continuation_options
+  if(!(options instanceof numerical_util.continuation_options))
+  {
+    throw new TypeError(`In root_finders.modified_newtons_method function, fourth parameter must be an instance of root_finders.continuation_options. What was supplied: ${options}`);
+  }
+
+  // error_in_y must be a boolean variable
+  if(typeof(error_in_y) !== "boolean")
+  {
+    throw new TypeError(`In root_finders.modified_newtons_method function, fifth parameter must be a boolean variable. What was supplied: ${typeof error_in_y} ${error_in_y}`)
+  }
+
+  // Check whether d2f & multiplicity are given usable values
+  /** @type boolean */
+  const d2f_given = d2f !== undefined && d2f !== null;
+
+  /** @type boolean */
+  const multiplicity_given = multiplicity !== undefined && multiplicity !== null;
+
+  // One of d2f & multiplicity must be given
+  if(!d2f_given && !multiplicity_given)
+  {
+    throw new TypeError(`In root_finders.modified_newtons_method function, at least one of d2f & multiplicity must be given as a usable value.`);
+  }
+
+  if(multiplicity_given && typeof(multiplicity) !== "number")
+  {
+    throw new TypeError(`In root_finders.modified_newtons_method function, seventh parameter must be a number if neither undefined nor null. What was given: ${typeof multiplicity} ${multiplicity}`);
+  }
+
+  if(!multiplicity_given && d2f_given && typeof(d2f) !== "function")
+  {
+    throw new TypeError(`In root_finders.modified_newtons_method function, sixth parameter must be a function if seventh parameter is not usable. What was given: ${typeof d2f} ${d2f}`);
+  }
+
+  // Cache previous functional evaluation
+  /** @type number */
+  let f_prev = f(guess);
+
+  // Don't perform any iterations if f(guess) is zero
+  if(f_prev === 0.0) return new numerical_util.numerical_results(guess, true);
+
+  // Already starting w/ first iteration, so set counter to 1
+  /** @type number */
+  let counter = 1;
+
+  /** @type number */
+  let c;
+
+  if(multiplicity_given)
+  {
+    // Next iteration
+    c = guess - multiplicity * (f_prev / df(guess));
+
+    // Cache functional value & derivative of next iteration
+    f_prev = f(c)
+
+    // If error_in_y is false, must track previous iteration, so logic changes enough to warrant a different branch entirely
+    if(error_in_y)
+    {
+      while(counter < options.max_iterations && Math.abs(f_prev) > options.error_tolerance)
+      {
+        // Apply same logic as above
+        c -= multiplicity * (f_prev / df(c));
+        f_prev = f(c);
+
+        // Increment counter
+        ++counter;
+      }
+    }
+
+    else
+    {
+      /** @type number */
+      let prev_c = guess;
+
+      while(counter < options.max_iterations && Math.abs(c - prev_c) > options.error_tolerance)
+      {
+        // Update previous value of c
+        prev_c = c;
+
+        // Apply same logic as above
+        c -= multiplicity * (f_prev / df(c));
+        f_prev = f(c);
+
+        // Increment counter
+        ++counter;
+      }
+    }
+  }
+
+  else
+  {
+    // Cache derivative of guess
+    /** @type number */
+    let df_prev = df(guess);
+
+    // Next iteration
+    c = guess - f_prev * df_prev / (df_prev * df_prev - f_prev * d2f(guess));
+
+    // Cache functional value & derivative of next iteration
+    f_prev = f(c);
+    df_prev = df(c);
+
+    // If error_in_y is false, must track previous iteration, so logic changes enough to warrant a different branch entirely
+    if(error_in_y)
+    {
+      while(counter < options.max_iterations && Math.abs(f_prev) > options.error_tolerance)
+      {
+        // Apply same logic as above
+        c -= f_prev * df_prev / (df_prev * df_prev - f_prev * d2f(c));
+        f_prev = f(c);
+        df_prev = df(c);
+
+        // Increment counter
+        ++counter;
+      }
+    }
+
+    else
+    {
+      /** @type number */
+      let prev_c = guess;
+
+      while(counter < options.max_iterations && Math.abs(c - prev_c) > options.error_tolerance)
+      {
+        // Update previous value of c
+        prev_c = c;
+
+        // Apply same logic as above
+        c -= f_prev * df_prev / (df_prev * df_prev - f_prev * d2f(c));
+        f_prev = f(c);
+        df_prev = df(c);
+
+        // Increment counter
+        ++counter;
+      }
+    }
+  }
+
+  // return numerical_results object w/ results
+  return new numerical_util.numerical_results(c, counter < options.max_iterations);
+};

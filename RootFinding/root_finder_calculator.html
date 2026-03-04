@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+
+    <title>Title</title>
+
+    <link rel = "stylesheet" href = "root_finder_calculator.css">
+  </head>
+
+  <body>
+    <h1 id = "root_finder_calculator_header">
+      Root-Finder Calculator
+    </h1>
+
+    <div id = "root_finder_calculator_explanation">
+      <p id = "root_finder_calculator_function_rules">
+        Below, you may provide a single-variable function (in JavaScript syntax) to find a root of.
+        If the function has named constants, a value must be assigned to the named constant
+        whether it be a pure number or a JavaScript expression in terms of a constant above it.
+        You may add/remove constants below the function text input.
+      </p>
+
+      <p id = "root_finder_calculator_function_example">
+        For example, it could be the following function if the square root of a number <i>a</i> is desired:
+
+        <br><br>
+
+        return x ** 2 - a;
+
+        <br><br>
+
+        Then, below, you would add a constant <i>a</i> and assign it a value, say, 2, if you wanted to approximate
+        the square root of two.
+      </p>
+
+      <p id = "root_finder_calculator_layer_rules">
+        You may add layers of root-finding methods below the constants. Each layer contains a root-finding algorithm,
+        an <a href = "./root_finding.html#root_finder_iteration">error tolerance</a>,
+        and, optionally, a <a href = "./root_finding.html#root_finder_iteration">max iteration count</a>.
+        If no max iteration count is supplied, then the method will never terminate.
+
+        <br><br>
+
+        Note that when adding layers, the choices are limited to the following rules, or the algorithm will halt:
+      </p>
+
+      <ul id = "root_finder_calculator_layer_rule_list">
+        <li id = "root_finder_calculator_layer_rule_case_1">
+          If previous root-finder was either <a href = "./out/root_finders.html#.bisection_method">bisection</a>
+          or <a href = "./out/root_finders.html#.regula_falsi">regula-falsi</a>,
+          then the current layer can be any choice.
+        </li>
+
+        <li id = "root_finder_calculator_layer_rule_case_2">
+          If previous root-finder was the <a href = "./out/root_finders.html#.secant_method">secant method</a>,
+          then neither bisection nor regula-falsi can be selected for the current layer.
+        </li>
+
+        <li id = "root_finder_calculator_layer_rule_case_3">
+          If previous root-finder was either <a href = "./out/root_finders.html#.newtons_method">Newton's method</a>
+          or <a href = "./out/root_finders.html#.modified_newtons_method">modified Newton's method</a>,
+          then only either Newton's method or modified Newton's method may be chosen for current layer.
+        </li>
+      </ul>
+
+      <p id = "root_finder_calculator_layer_example_paragraph">
+        For example, if you would like to start with <a href = "./out/root_finders.html#.bisection_method">bisection</a>
+        with an intermediary <a href = "./root_finding.html#root_finder_iteration">error tolerance</a> of 1E-2,
+        then switch to <a href = "./out/root_finders.html#.regula_falsi">regula-falsi</a>
+        with an intermediary error tolerance of 1E-5,
+        then switch to <a href = "./out/root_finders.html#.newtons_method">Newton's method</a>
+        with a final error tolerance of 5E-14, then you would do the following:
+      </p>
+
+      <ul id = "root_finder_calculator_layer_example">
+        <li id = "root_finder_calculator_example_bisection_layer">
+          Add layer with bisection method at an error tolerance of 1E-2 and an optional max iteration count.
+        </li>
+
+        <li id = "root_finder_calculator_example_regula_falsi_layer">
+          Add layer with regula-falsi at an error tolerance of 1E-5 and an optional max iteration count.
+        </li>
+
+        <li id = "root_finder_calculator_example_newtons_method_layer">
+          Add layer with Newton's method at an error tolerance of 5E-14 and an optional max iteration count.
+        </li>
+      </ul>
+
+      <p id = "root_finder_basics_link">
+        For a thorough coverage on the basics of root-finding and which algorithms to select when, click
+        <a href = "./root_finding.html">here</a>.
+      </p>
+    </div>
+
+    <div id = "root_finder_calculator_function_section">
+      <label for = "root_finder_calculator_function_box">
+        Insert a JavaScript function below to find a root of. Note that variable must be referenced as x.
+
+        <br><br>
+      </label>
+
+      <textarea class = "default_text_container" id = "root_finder_calculator_function_box" rows = 3 cols = 40></textarea>
+
+      <br><br>
+
+      <button class = "default_text_container" type = "button" id = "root_finder_calculator_add_derivative">
+        Add derivative
+      </button>
+
+      <button class = "default_text_container hidden" type = "button" id = "root_finder_calculator_remove_derivative">
+        Remove derivative
+      </button>
+
+      <label class = "hidden" for = "root_finder_calculator_derivative_box" id = "root_finder_calculator_derivative_label">
+        <br><br>
+
+        Insert derivative of function in text area below.
+
+        <br><br>
+      </label>
+
+      <textarea class = "default_text_container hidden" id = "root_finder_calculator_derivative_box" rows = 3 cols = 40></textarea>
+
+      <br><br>
+
+      <button class = "default_text_container hidden" type = "button" id = "root_finder_calculator_add_second_derivative">
+        Add second derivative
+      </button>
+
+      <button class = "default_text_container hidden" type = "button" id = "root_finder_calculator_remove_second_derivative">
+        Remove second derivative
+      </button>
+
+      <label class = "hidden" for = "root_finder_calculator_second_derivative_box" id = "root_finder_calculator_second_derivative_label">
+        <br><br>
+
+        Insert second derivative of function in text area below.
+
+        <br><br>
+      </label>
+
+      <textarea class = "default_text_container hidden" id = "root_finder_calculator_second_derivative_box" rows = 3 cols = 40></textarea>
+    </div>
+
+    <div id = "root_finder_calculator_constant_insertion">
+      <label for = "root_finder_calculator_constant_name">
+        const
+      </label>
+      <input class = "default_text_container" type = "text" id = "root_finder_calculator_constant_name">
+
+      <label for = "root_finder_calculator_constant_value">
+        =
+      </label>
+      <input class = "default_text_container" type = "text" id = "root_finder_calculator_constant_value">
+
+      <button class = "default_text_container" type = "button" id = "root_finder_calculator_add_constant">
+        Add constant
+      </button>
+
+      <br>
+      <br>
+
+      <select class = "default_text_container hidden" id = "root_finder_calculator_constant_keys">
+        <!-- Constant names will be listed via JavaScript -->
+      </select>
+
+      <button class = "default_text_container hidden" type = "button" id = "root_finder_calculator_remove_constant">
+        Remove constant
+      </button>
+    </div>
+
+    <div class = "layer" id = "root_finder_calculator_layer_1_section">
+      <label for = "root_finder_calculator_layer_1_method">
+        Root-finder:
+      </label>
+      <select class = "default_text_container" id = "root_finder_calculator_layer_1_method">
+        <option value = "bisection">
+          Bisection
+        </option>
+
+        <option value = "regula_falsi">
+          Regula-falsi
+        </option>
+
+        <option value = "newtons_method">
+          Newton's method
+        </option>
+
+        <option value = "secant_method">
+          Secant method
+        </option>
+
+        <option value = "modified_newtons_method">
+          Modified Newton's method
+        </option>
+      </select>
+
+      <label for = "root_finder_calculator_layer_1_error_tolerance">
+        Error tolerance:
+      </label>
+      <input class = "default_text_container" type = "text" id = "root_finder_calculator_layer_1_error_tolerance">
+
+      <label for = "root_finder_calculator_layer_1_max_iterations">
+        Max allowed iterations:
+      </label>
+      <input class = "default_text_container" type = "number" id = "root_finder_calculator_layer_1_max_iterations">
+
+      <label for = "root_finder_calculator_layer_1_guess_1" id = "root_finder_calculator_layer_1_guess_1_label">
+        Guess:
+      </label>
+      <input class = "default_text_container" type = "text" id = "root_finder_calculator_layer_1_guess_1">
+
+      <label for = "root_finder_calculator_layer_1_guess_2" id = "root_finder_calculator_layer_1_guess_2_label">
+        Other endpoint:
+      </label>
+      <input class = "default_text_container" type = "text" id = "root_finder_calculator_layer_1_guess_2">
+
+      <button class = "default_text_container" type = "button" id = "root_finder_calculator_add_layer">
+        Add layer
+      </button>
+
+      <button class = "default_text_container hidden" type = "button" id = "root_finder_calculator_remove_layer">
+        Remove bottom layer
+      </button>
+
+      <button class = "default_text_container" type = "button" id = "root_finder_calculator_run">
+        Run algorithm
+      </button>
+    </div>
+
+    <div class = "hidden" id = "root_finder_calculator_result_section">
+      <!-- JavaScript will add text here -->
+    </div>
+
+    <script type = "module" src = "root_finder_calculator_backend.js" defer></script>
+  </body>
+</html>

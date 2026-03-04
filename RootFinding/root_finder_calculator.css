@@ -1,0 +1,181 @@
+/* Applies to all color & high-contrast themes */
+html
+{
+  /* Set root font size */
+  font-size: 1vw;
+}
+
+/* Applies to all color & high-contrast themes */
+h1
+{
+  /* solid border */
+  border-style: solid;
+
+  /* thin bottom border */
+  border-bottom-width: 1px;
+
+  /* no borders elsewhere */
+  border-top-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+
+  /* set bottom margin to font size */
+  margin-bottom: 1.0em;
+}
+
+/* Applies to all color & high-contrast themes */
+div
+{
+  /* solid border */
+  border-style: solid;
+
+  /* set left & right padding to half of font size */
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+
+  h3
+  {
+    /* Triple-spacing between header & next HTML element */
+    margin-bottom: 3.0em;
+  }
+
+  p
+  {
+    /* Allow double-spacing between paragraphs*/
+    margin-bottom: 2.0em;
+
+    /* No double-spacing within paragraphs */
+    line-height: normal;
+  }
+
+  textarea
+  {
+    /* Scroll up & down */
+    overflow-y: scroll;
+  }
+}
+
+.hidden
+{
+  display: none;
+}
+
+/* Style when dark mode is active */
+@media(prefers-color-scheme: dark)
+{
+  h1
+  {
+    /* gray */
+    border-color: rgb(128, 128, 128);
+  }
+
+  body
+  {
+    /* midnight black */
+    background-color: rgb(32, 32, 32);
+
+    /* darker darkviolet */
+    color: rgb(135, 0, 192);
+  }
+
+  div
+  {
+    /* gray */
+    border-color: rgb(128, 128, 128);
+
+    border-width: 2px;
+
+    /* set top & bottom margins to half of font size */
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+  }
+
+  div.layer
+  {
+    /* darker midnightblue */
+    background-color: rgb(23, 23, 105);
+  }
+
+  /* For visited links */
+  a:visited
+  {
+    /* darker limegreen */
+    color: rgb(25, 103, 25);
+  }
+
+  .default_text_container
+  {
+    /* dark gray */
+    background-color: rgb(64, 64, 64);
+
+    /* light gray */
+    color: rgb(160, 160, 160);
+  }
+}
+
+/* Style when light mode is active */
+@media(prefers-color-scheme: light)
+{
+  h1
+  {
+    /* midnight black */
+    border-color: rgb(32, 32, 32);
+  }
+
+  body
+  {
+    /* very light gray */
+    background-color: rgb(240, 240, 240);
+
+    /* lighter mediumpurple */
+    color: rgb(170, 129, 253);
+  }
+
+  div
+  {
+    /* midnight black */
+    border-color: rgb(32, 32, 32);
+
+    border-width: 2px;
+
+    /* set top & bottom margins to half of font size */
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+  }
+
+  div.layer
+  {
+    /* lighter cadetblue */
+    background-color: rgb(223, 235, 236);
+  }
+
+  /* For visited links */
+  a:visited
+  {
+    /* lighter forestgreen */
+    color: rgb(38, 154, 38);
+  }
+
+  .default_text_container
+  {
+    /* dark gray */
+    background-color: rgb(224, 224, 224);
+
+    /* light gray */
+    color: rgb(32, 32, 32);
+  }
+}
+
+/* Style when high-contrast mode is active */
+@media(forced-colors: active)
+{
+  div
+  {
+    /* make thicker due to lack of color */
+    border-width: 3px;
+
+    /* set top & bottom margins to font size */
+    margin-top: 1.0em;
+    margin-bottom: 1.0em;
+  }
+}
