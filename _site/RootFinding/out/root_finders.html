@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Namespace: root_finders</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Namespace: root_finders</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>root_finders</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description">Namespace for single-variable root-finders.</div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-author">Author:</dt>
+    <dd class="tag-author">
+        <ul>
+            <li>Tac Mortensen</li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="numerical_methods.js.html">numerical_methods.js</a>, <a href="numerical_methods.js.html#line224">line 224</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".bisection_method"><span class="type-signature">(static) </span>bisection_method<span class="signature">(f, guess, options, error_in_y)</span><span class="type-signature"> &rarr; {<a href="numerical_util.numerical_results.html">numerical_util.numerical_results</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Bisection method, a linear, bracketed root finder.<br><br>As in all bracketed root finders, supplied guess must be a two-number array that satisfies the Intermediate Value Theorem,meaning that given function f and interval [a, b], f(a) and f(b) must have opposite signs.<br><br>Iterations work as follows:<ul> <li>Calculate midpoint, m, of previous iteration (supplied guess if first iteration).</li> <li>If sign of f(m) agrees with sign of f(a), then assign a to m; otherwise, assign b to m;</li> <li>Resulting interval is next iteration.</li> <ul>   <li>If tracking y-error (default), then cease iteration if either |f(m)| < tol, or iterations >= max_iterations.</li>   <li>If tracking x-error, then cease iteration if either interval length < tol, or iterations >= max_iterations.</li> </ul></ul>Preferable when guaranteed convergence is desired; however, convergence is linear and therefore slow.Successive errors are given by E_{k + 1} = 0.5E_k.<br><br>Given <a href="numerical_util.continuation_options.html#error_tolerance">error tolerance</a> tol andinterval length L, it takes exactly ceil(log_2(L / tol)) iterationswhere log_2 is log base 2, and ceil is the ceiling function, to converge.<br><br><b>WARNING</b>: For convergence to be guaranteed, supplied guess must satisfy the Intermediate Value Theoremas described above, and the function f must be continuous.<br><br><b>WARNING</b>: Function mutates the elements of guess to match the ending interval. If the original guesscannot be mutated, then it is recommended to deep-copy it first, then pass the clone to this function.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>f</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The function to find a root of.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>guess</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The interval that satisfies the Intermediate Value Theorem to pass as the initial guess.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="numerical_util.continuation_options.html">numerical_util.continuation_options</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The <a href="numerical_util.continuation_options.html">continuation options</a>to supply.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>error_in_y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Whether to cease iteration based on error in y or error in x as described above.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="numerical_methods.js.html">numerical_methods.js</a>, <a href="numerical_methods.js.html#line289">line 289</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="root_finders.html#.regula_falsi">regula_falsi</a> for a quicker method that guarantees convergencebut has superlinear convergence with respect to the golden ratio that also guarantees convergence.</li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+    <div class="param-desc">
+    
+        TypeError if any of the following predicates are met:<ul> <li>f is not a function;</li> <li>guess is not a two-number array;</li> <li>guess does not satisfy the Intermediate Value Theorem as described above;</li> <li>options is not an instance of <a href="numerical_util.continuation_options.html">continuation_options</a>;</li> <li>error_in_y is not a boolean variable.</li></ul>
+    
+    </div>
+
+
+    
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    A <a href="numerical_util.numerical_results.html">numerical_results</a> objectthat contains the resultant intervaland whether it satisfies the <a href="numerical_util.continuation_options.html#error_tolerance">error tolerance</a>.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="numerical_util.numerical_results.html">numerical_util.numerical_results</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".modified_newtons_method"><span class="type-signature">(static) </span>modified_newtons_method<span class="signature">(f, df, guess, options, error_in_y, d2f, multiplicity)</span><span class="type-signature"> &rarr; {<a href="numerical_util.numerical_results.html">numerical_util.numerical_results</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Modified Newton's method, a quadratic, non-bracketed root finder. Used in place of <a href="root_finders.html#.newtons_method">newtons_method</a>when multiplicity of root is not one; in other words, when f'(root) is also zero. Takes more functional evaluationsthan the standard Newton's method and second-derivative information when the multiplicity is not known (default case).<br><br>Given that df is the derivative of f, and d2f is the second derivative of f,if the multiplicity m is known and given, then the iterations work as follows:<ul> <li>x_{k + 1} = x_k - m * f(x_k) / df(x_k)</li> <ul>   <li>If tracking y-error (default), then cease iteration if either |f(x_k)| < tol, or iterations >= max_iterations.</li>   <li>If tracking x-error, then cease iteration if either |x_k - x_(k - 1)| < tol, or iterations >= max_iterations.</li> </ul></ul>If the multiplicity m is not given, then the iterations work as follows:<ul> <li>x_{k + 1} = x_k - f(x_k) * df(x_k) / ((df(x_k))^2 - f(x_k) * d2f(x_k))</li> <ul>   <li>If tracking y-error (default), then cease iteration if either |f(x_k)| < tol, or iterations >= max_iterations.</li>   <li>If tracking x-error, then cease iteration if either |x_k - x_(k - 1)| < tol, or iterations >= max_iterations.</li> </ul></ul>Preferable when fast, quadratic convergence is desired, and a guess relatively close to a root is given,and the root has non-singular multiplicity as described above. Successive errors are given by E_{k + 1} = C * E_k^2.<br><br><b>WARNING</b>: Convergence is not guaranteed. Function f must be differentiable, and initial guessmust be close enough to the actual root. It is recommended to use other root-finderssuch as <a href="root_finders.html#.bisection_method">bisection_method</a> to get sufficiently close to a guess for Newton's methodand verify that Newton's method still converges after supplication.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>f</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The function to find a root of.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>df</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The derivative of the function to find a root of. <b>WARNING</b>: Unpredictable results applyif df is not sufficiently close to the derivative of f. Derivative-free methods likeregula_falsi should be used when information of the derivative does not come easily or is unknown.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>guess</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The initial guess to supply.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="numerical_util.continuation_options.html">numerical_util.continuation_options</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The <a href="numerical_util.continuation_options.html">continuation_options</a> to supply.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>error_in_y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Whether to cease iteration based on error in y or error in x as described above.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>d2f</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The second derivative of the function to find a root of. Default value is undefined.<b>WARNING</b>: Unpredictable results apply if d2f is not sufficiently close to the second derivative of f.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>multiplicity</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The multiplicity of the root to find. Default value is undefined.<b>WARNING</b>: One of d2f or multiplicity must be given, or the function will throw.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="numerical_methods.js.html">numerical_methods.js</a>, <a href="numerical_methods.js.html#line924">line 924</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="root_finders.html#.newtons_method">newtons_method</a> for a fast, quadratic root-finder that is preferable to usewhen the multiplicity of the root is singular.</li>
+        
+            <li><a href="root_finders.html#.bisection_method">bisection_method</a> for a linear, bracketed root-finder that is also guaranteed to converge.Serves as a good choice for an intermediary root-finder before using modified Newton's method.</li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+    <div class="param-desc">
+    
+        TypeError if any of the following predicates are met:<ul> <li>f is not a function;</li> <li>df is not a function;</li> <li>guess is not a number;</li> <li>options is not an instance of root_finders.continuation_options;</li> <li>error_in_y is not a boolean variable.</li> <li>Neither d2f nor multiplicity are usable (neither undefined nor null);</li> <li>multiplicity is not a number if it is usable;</li> <li>d2f is not a function if it is usable, and multiplicity is not usable.</li></ul>
+    
+    </div>
+
+
+    
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    A <a href="numerical_util.numerical_results.html">numerical_results</a> objectthat contains the resultant interval and whether it satisfiesthe <a href="numerical_util.continuation_options.html#error_tolerance">error tolerance</a>.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="numerical_util.numerical_results.html">numerical_util.numerical_results</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".newtons_method"><span class="type-signature">(static) </span>newtons_method<span class="signature">(f, df, guess, options, error_in_y)</span><span class="type-signature"> &rarr; {<a href="numerical_util.numerical_results.html">numerical_util.numerical_results</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Newton's method, a quadratic, non-bracketed root finder.<br><br>Given that df is the derivative of f, iterations work as follows:<ul> <li>x_{k + 1} = x_k - f(x_k) / df(x_k)<li> <ul>   <li>If tracking y-error (default), then cease iteration if either |f(x_k)| < tol, or iterations >= max_iterations.</li>   <li>If tracking x-error, then cease iteration if either |x_k - x_(k - 1)| < tol, or iterations >= max_iterations.</li> </ul></ul>Preferable when fast, quadratic convergence is desired, and a guess relatively close to a root is given.Successive errors are given by E_{k + 1} = C * E_k^2.<br><br><b>WARNING</b>: Only gives linear convergence if a root of multiplicity higher than one is being determined.For such a root, it is recommended instead to use modified Newton's method that requires more functional evaluationsbut gives quadratic convergence in such a case.<br><br><b>WARNING</b>: Convergence is not guaranteed. Function f must be differentiable, and initial guessmust be close enough to the actual root. It is recommended to use other root-finderssuch as <a href="root_finders.html#.bisection_method">bisection_method</a> or <a href="root_finders.html#.regula_falsi">regula_falsi</a>to get sufficiently close to a guess for Newton's method and verify that Newton's method still converges after supplication.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>f</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The function to find a root of.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>df</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The derivative of the function to find a root of. <b>WARNING</b>: Unpredictable results applyif df is not sufficiently close to the derivative of f. Derivative-free methods like<a href="root_finders.html#.regula_falsi">regula_falsi</a> should be used when information of the derivative does not come easily or is unknown.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>guess</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The initial guess to supply.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="numerical_util.continuation_options.html">numerical_util.continuation_options</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The <a href="numerical_util.continuation_options.html">continuation_options</a> to supply.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>error_in_y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Whether to cease iteration based on error in y or error in x as described above.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="numerical_methods.js.html">numerical_methods.js</a>, <a href="numerical_methods.js.html#line618">line 618</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="root_finders.html#.regula_falsi">regula_falsi</a> for a bracketed superlinear root-finder that approximates dfas a secant line's slope when derivative information is not easily attainable and guarantees convergence. A good choiceas a intermediary root-finder to find guesses sufficiently close to roots to supply Newton's method.</li>
+        
+            <li><a href="root_finders.html#.bisection_method">bisection_method</a> for a linear, bracketed root-finderthat is also guaranteed to converge.</li>
+        
+            <li><a href="root_finders.html#.modified_newtons_method">modified_newtons_method</a> for a fast, quadratic root-finderthat is preferable to use on roots of non-singular multiplicity.</li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+    <div class="param-desc">
+    
+        TypeError if any of the following predicates are met:<ul> <li>f is not a function;</li> <li>df is not a function;</li> <li>guess is not a number;</li> <li>options is not an instance of <a href="numerical_util.continuation_options.html">continuation_options</a>;</li> <li>error_in_y is not a boolean variable.</li></ul>
+    
+    </div>
+
+
+    
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    A <a href="numerical_util.numerical_results.html">numerical_results</a> objectthat contains the resultant interval and whether it satisfies the<a href="numerical_util.continuation_options.html#error_tolerance">error tolerance</a>.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="numerical_util.numerical_results.html">numerical_util.numerical_results</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".regula_falsi"><span class="type-signature">(static) </span>regula_falsi<span class="signature">(f, guess, options, error_in_y)</span><span class="type-signature"> &rarr; {<a href="numerical_util.numerical_results.html">numerical_util.numerical_results</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Regula falsi, aka method of false position, a superlinear, bracketed root finder.<br><br>As in all bracketed root finders, supplied guess must be a two-number array that satisfies the Intermediate Value Theorem,meaning that given function f and interval [a, b], f(a) and f(b) must have opposite signs.<br><br>Iterations work as follows:<ul> <li>Given that x_1 is the previous c, and x_0 is the other point on the previous iteration, calculatec = x_1 - (x_1 - x_0) / (f(x_1) - f(x_0)) * f(x_1).</li> <li>If sign of f(c) agrees with sign of f(a), then assign a to m; otherwise, assign b to m;</li> <li>Resulting interval is next iteration.</li> <ul>   <li>If tracking y-error (default), then cease iteration if either |f(c)| < tol, or iterations >= max_iterations.</li>   <li>If tracking x-error, then cease iteration if either interval length < tol, or iterations >= max_iterations.</li> </ul></ul>Preferable when guaranteed convergence is desired, and a relatively small interval is supplied;however, convergence is superlinear and therefore slower than quadratic but faster than linear.Successive errors are given by E_{k + 1} = C * E_k^phi where phi is the golden ratio, approximately 1.618.<br><br><b>WARNING</b>: For convergence to be guaranteed, supplied guess must satisfy the Intermediate Value Theoremas described above, and the function f must be continuous.<br><br><b>WARNING</b>: Function mutates the elements of guess to match the ending interval. If the original guesscannot be mutated, then it is recommended to deep-copy it first, then pass the clone to this function.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>f</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The function to find a root of.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>guess</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The interval that satisfies the Intermediate Value Theorem to pass as the initial guess.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="numerical_util.continuation_options.html">numerical_util.continuation_options</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The <a href="numerical_util.continuation_options.html">continuation_options</a> to supply.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>error_in_y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Whether to cease iteration based on error in y or error in x as described above.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="numerical_methods.js.html">numerical_methods.js</a>, <a href="numerical_methods.js.html#line444">line 444</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="root_finders.html#.secant_method">secant_method</a> for a bracketed superlinear root-finder with the sameiteration formula as regula falsi but doesn't check bounds on each step and therefore doesn't guarantee convergencebut has the potential to be faster to converge.</li>
+        
+            <li><a href="root_finders.html#.bisection_method">bisection_method</a> for a linear, bracketed root-finderthat is also guaranteed to converge.</li>
+        
+            <li><a href="root_finders.html#.newtons_method">newtons_method</a> for a fast, quadratic root-finder but with no guaranteed convergenceand requires derivative information.</li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+    <div class="param-desc">
+    
+        TypeError if any of the following predicates are met:<ul> <li>f is not a function;</li> <li>guess is not a two-number array;</li> <li>guess does not satisfy the Intermediate Value Theorem as described above;</li> <li>options is not an instance of <a href="numerical_util.continuation_options.html">continuation_options</a>;</li> <li>error_in_y is not a boolean variable.</li></ul>
+    
+    </div>
+
+
+    
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    A <a href="numerical_util.numerical_results.html">numerical_results</a> objectthat contains the resultant interval and whether it satisfiesthe <a href="numerical_util.continuation_options.html#error_tolerance">error tolerance</a>.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="numerical_util.numerical_results.html">numerical_util.numerical_results</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".secant_method"><span class="type-signature">(static) </span>secant_method<span class="signature">(f, guess, options, error_in_y)</span><span class="type-signature"> &rarr; {<a href="numerical_util.numerical_results.html">numerical_util.numerical_results</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Secant method, a superlinear, non-bracketed root finder.<br><br>Supplied guess must be a two-number array. While not a bracketed root-finder, it is recommended that guesssatisfies the Intermediate Value Theorem, meaning that given function f and interval [a, b], f(a) and f(b) must have opposite signs.<br><br>Iterations work as follows:<ul> <li>x_{k + 1} = x_k - (x_k - x_{k - 1}) / (f(x_k) - f(x_{k - 1})) * f(x_k).</li> <ul>   <li>If tracking y-error (default), then cease iteration if either |f(c)| < tol, or iterations >= max_iterations.</li>   <li>If tracking x-error, then cease iteration if either interval length < tol, or iterations >= max_iterations.</li> </ul></ul>Preferable when derivative information is not given, and a relatively small interval is supplied;however, convergence is superlinear and therefore slower than quadratic but faster than linear.Successive errors are given by E_{k + 1} = C * E_k^phi where phi is the golden ratio, approximately 1.618.<br><br><b>WARNING</b>: Convergence is not guaranteed. Initial guess must be close enough to the actual root.It is recommended to use other root-finders such as <a href="root_finders.html#.bisection_method">bisection_method</a>to get sufficiently close to a guess for the secant method and verify that the secant method still converges after supplication.<br><br><b>WARNING</b>: Function does mutate the elements of guess to match the ending interval. If the original guesscannot be mutated, then it is recommended to deep-copy it first, then pass the clone to this function.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>f</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The function to find a root of.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>guess</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The interval to pass as the initial guess.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="numerical_util.continuation_options.html">numerical_util.continuation_options</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The <a href="numerical_util.continuation_options.html">continuation_options</a> to supply.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>error_in_y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Whether to cease iteration based on error in y or error in x as described above.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="numerical_methods.js.html">numerical_methods.js</a>, <a href="numerical_methods.js.html#line768">line 768</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="root_finders.html#.regula_falsi">regula_falsi</a> for a bracketed superlinear root-finder with the sameiteration formula as the secant method but checks bounds on each step and therefore guarantees convergencebut tends to be slower to converge due to the additional checks.</li>
+        
+            <li><a href="root_finders.html#.bisection_method">bisection_method</a> for a linear, bracketed root-finder that is slowerthan the secant method but is guaranteed to converge and often serves as a good intermediary root finder for the secant method.</li>
+        
+            <li><a href="root_finders.html#.newtons_method">newtons_method</a> for a fast, quadratic root-finder but with no guaranteed convergenceand requires derivative information.</li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+    <div class="param-desc">
+    
+        TypeError if any of the following predicates are met:<ul> <li>f is not a function;</li> <li>guess is not a two-number array;</li> <li>options is not an instance of continuation_options;</li> <li>error_in_y is not a boolean variable.</li></ul>
+    
+    </div>
+
+
+    
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    A <a href="numerical_util.numerical_results.html">numerical_results</a> objectthat contains the resultant interval and whether it satisfies the<a href="numerical_util.continuation_options.html#error_tolerance">error tolerance</a>.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="numerical_util.numerical_results.html">numerical_util.numerical_results</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-numerical_methods.html">numerical_methods</a></li><li><a href="module-unit_testing.html">unit_testing</a></li></ul><h3>Namespaces</h3><ul><li><a href="numerical_util.html">numerical_util</a></li><li><a href="root_finders.html">root_finders</a></li><li><a href="unit_test.html">unit_test</a></li></ul><h3>Classes</h3><ul><li><a href="numerical_util.continuation_options.html">continuation_options</a></li><li><a href="numerical_util.numerical_results.html">numerical_results</a></li><li><a href="unit_test.test.html">test</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Thu Feb 19 2026 13:53:50 GMT-0700 (Mountain Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

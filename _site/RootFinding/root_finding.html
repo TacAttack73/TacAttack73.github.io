@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+
+    <title>Root-Finding</title>
+
+    <link rel = "stylesheet" href = "root_finding.css">
+  </head>
+
+  <body>
+    <h1 id = "root_finder_header">
+      Root-Finders
+    </h1>
+
+    <div id = "root_finder_definition_section">
+      <h3 id = "root_finder_definition_header">
+        What Is a Root-Finder?
+      </h3>
+
+      <p id = "root_finder_definition">
+        A root-finder is a numerical method that approximates a point <i>r</i> given a function <i>f</i> such that
+        <i>f</i>(<i>r</i>) = 0. In such a case, <i>r</i> is known as a root, hence the term root-finder.
+      </p>
+
+      <p id = "root_finder_application">
+        Root-finding is used when the roots of a function cannot be algebraically obtained.
+      </p>
+
+      <ul id = "root_finder_application_examples">
+        <li id = "root_finder_payment_calculator_example">
+          Payment calculators often use root-finders to evaluate principal balances, interest rates, etc.
+        </li>
+
+        <li id = "root_finder_graphics_example">
+          In statistics, to fit a forecasting model to historical data to predict the future of a variable
+          or approximate the parameters that best fits a probability distribution to a sample,
+          numerical methods are often employed.
+        </li>
+      </ul>
+
+      <br>
+
+      <p id = "root_finder_iteration">
+        All root-finders are supplied at least one initial guess to what the root could be.
+        Iteration generally continues until some error tolerance (i.e. 5E-15)
+        or maximum iteration count (i.e. 10,000 iterations) is met in which case iteration will stop,
+        and the most recent iteration will be returned as the numerical approximation of a root.
+      </p>
+    </div>
+
+    <div id = "root_finder_category_section">
+      <h3 id = "root_finder_category_header">
+        Root-Finder Categories
+      </h3>
+
+      <p id = "root_finder_category_preface">
+        For single-variable functions, root-finders are broken into two different categories:
+      </p>
+
+      <ul id = "root_finder_categories">
+        <li id = "bracketed_root_finder">
+          Bracketed
+
+          <ul id = "bracketed_root_finder_indent1">
+            <li id = "bracketed_root_finder_guess_structure">
+              Supplied an interval where the root must lie somewhere within as an initial guess
+              via satisfying the Intermediate Value Theorem.
+
+              <ul id = "bracketed_root_finder_indent1_1">
+                <li id = "bracketed_root_finder_intermediate_value_theorem">
+                  Intermediate Value Theorem states that given a function <i>f</i> and interval
+                  <i>I</i>[<i>a</i>, <i>b</i>], and <i>f</i> is continuous on <i>I</i>,
+                  then at least one root is guaranteed to exist in <i>I</i> if <i>f</i>(<i>a</i>)
+                  and <i>f</i>(<i>b</i>) have opposite signs.
+                </li>
+              </ul>
+            </li>
+
+            <li id = "bracketed_root_finder_examples">
+              Examples include:
+
+              <ul id = "bracketed_root_finder_indent_1_2">
+                <li id = "bracketed_root_finder_bisection_method">
+                  <a href = "./out/root_finders.html#.bisection_method">bisection</a>;
+                </li>
+
+                <li id = "bracketed_root_finder_regula_falsi">
+                  <a href = "./out/root_finders.html#.regula_falsi">regula-falsi</a>
+
+                  (aka, method of false position).
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+
+        <li id = "non_bracketed_root_finder">
+          Non-bracketed
+
+          <ul id = "non_bracketed_root_finder_indent1">
+            <li id = "non_bracketed_root_finder_guess_structure">
+              Supplied either a single number or multiple numbers as initial guesses.
+            </li>
+
+            <li id = "non_bracketed_root_finder_examples">
+              Examples include:
+
+              <ul id = "non_bracketed_root_finder_indent_1_1">
+                <li id = "non_bracketed_root_finder_newtons_method">
+                  <a href = "./out/root_finders.html#.newtons_method">Newton's method</a>;
+                </li>
+
+                <li id = "non_bracketed_root_finder_secant_method">
+                  <a href = "./out/root_finders.html#.secant_method">secant method</a>;
+                </li>
+
+                <li id = "non_bracketed_root_finder_modified_newtons_method">
+                    <a href = "./out/root_finders.html#.modified_newtons_method">modified Newton's method</a>.
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <div id = "root_finder_multiplicity_and_convergence_section">
+      <h3 id = "root_finder_multiplicity_and_convergence_header">
+        Root-Finder Multiplicity & Convergence
+      </h3>
+
+      <p id = "root_finder_multiplicity_preface">
+        All roots have multiplicity <i>n</i>. If <i>n</i> &gt; 1, then this can slow down a root-finder's convergence
+        as explained below.
+      </p>
+
+      <ul id = "root_finder_multiplicity_definition">
+        <li id = "root_finder_singular_multiplicity">
+          Given function <i>f</i> and its derivative <i>f'</i>, a singular root <i>r</i>, or root of multiplicity one,
+          is where <i>f</i>(<i>r</i>) = 0, but <i>f'</i>(<i>r</i>) &ne; 0.
+        </li>
+
+        <li id = "root_finder_non_singular_multiplicity">
+          Given function <i>f</i> and its derivatives up to order <i>n</i>, <i>d</i>^<i>n f</i>/<i>dx</i>^<i>n</i>,
+          a root of multiplicity <i>n</i> - 1, <i>r</i>, is where <i>d</i>^<i>k f</i>/<i>dx</i>^<i>k</i>(<i>r</i>) = 0
+          for <i>k</i> from 0 to <i>n</i> - 1, but <i>d</i>^<i>n f</i>/<i>dx</i>^<i>n</i>(<i>r</i>) &ne; 0.
+        </li>
+      </ul>
+
+      <br>
+
+      <p id = "root_finder_rate_of_convergence_definition">
+        A root-finder's rate of convergence is how quickly the root-finder is expected to converge; more specifically,
+        given previous error <i>E</i><sub><i>k</i> - 1</sub> and current error <i>E</i><sub><i>k</i></sub>,
+        for some number <i>C</i><sub><i>k</i> - 1</sub>,
+        <i>E</i><sub><i>k</i></sub> = <i>C</i><sub><i>k</i> - 1</sub><i>E</i><sub><i>k</i> - 1</sub><sup><i>n</i></sup>.
+      </p>
+
+      <ul id = "root_finder_convergence_cases">
+        <li id = "root_finder_linear_convergence">
+          If <i>n</i> = 1, then there is linear convergence.
+        </li>
+
+        <li id = "root_finder_superlinear_convergence">
+          If 1 &lt; <i>n</i> &lt; 2, then there is superlinear convergence.
+
+          <ul id = "root_finder_superlinear_convergence_indent_1">
+            <li id = "root_finder_superlinear_convergence_golden_ratio">
+              In this case, the most common case of <i>n</i> is the golden ratio, &phi; = (1 + &radic;5) / 2,
+              approximately 1.618.
+            </li>
+          </ul>
+        </li>
+
+        <li id = "root_finder_quadratic_convergence">
+          If <i>n</i> = 2, then there is quadratic convergence.
+        </li>
+      </ul>
+
+      <br>
+
+      <p id = "root_finder_multiplicity_conseqeunces">
+        <b>Note</b>: For many root-finders, if the root has
+        <a href = "#root_finder_multiplicity_definition">multiplicity</a> &gt; 1, then the convergence will become linear.
+        A common workaround for this dilemma is
+        <a href = "./out/root_finders.html#.modified_newtons_method">modified Newton's method</a>
+        that has <a href = "#root_finder_quadratic_convergence">quadratic convergence</a>,
+        even with a root of multiplicity &gt; 1, given that the current iteration is close enough to the root,
+        but it requires second-derivative information and requires more functional evaluations per iteration
+        which can slow convergence given computationally expensive functions and derivatives.
+      </p>
+    </div>
+
+    <div id = "authors_recommended_approach_section">
+      <h3 id = "authors_recommended_approach_header">
+        Author's Recommended Approach
+      </h3>
+
+      <p id = "root_finder_recommended_approach">
+        In general, if a non-linear root-finder is not close enough to a root, then its convergence will be slow.
+        For this reason, the author's recommended approach in most cases is to start with
+        <a href = "./out/root_finders.html#.bisection_method">bisection</a>
+        with an initial guess that satisfies the
+        <a href = "#bracketed_root_finder_intermediate_value_theorem">Intermediate Value Theorem</a>,
+        iterate until an intermediary <a href = "#root_finder_iteration">error tolerance</a> (i.e. 1E-2) is satisfied,
+        then switch to <a href = "./out/root_finders.html#.regula_falsi">regula-falsi</a> which, like bisection,
+        guarantees convergence so long as the function is continuous on the supplied interval, and the
+        Intermediate Value Theorem is satisfied.
+      </p>
+
+      <p id = "root_finder_recommended_approach_continued">
+        The user may switch to <a href = "./out/root_finders.html#.newtons_method">Newton's method</a>
+        after <a href = "./out/root_finders.html#.regula_falsi">regula-falsi</a> if regula-falsi stops
+        after another intermediary <a href = "#root_finder_iteration">error tolerance</a> (i.e. 1E-5) is satisfied.
+        <b>WARNING</b>: Since convergence is not guaranteed for Newton's method, it is advised to give a small
+        maximum iteration count and check whether the error tolerance is satisfied; if not, then a re-run of
+        regula-falsi would then be advised.
+      </p>
+    </div>
+
+    <div id = "root_finder_calculator_section">
+      <h3 id = "root_finder_calculator_header">
+        Root-Finder Calculator
+      </h3>
+
+      <p id = "root_finder_calculator_preface">
+        The reader is invited to utilize root-finders from the link below. The author has supplied five root-finders
+        with different strengths & weaknesses. The links on each root-finder below will take the reader to
+        the author's documentation on those methods.
+      </p>
+
+      <ul id = "root_finder_calculator_methods">
+        <li id = "root_finder_calculator_bracketed_methods">
+          Bracketed methods:
+
+          <ul id = "root_finder_calculator_bracketed_methods_indent_1">
+            <li id = "root_finder_calculator_bisection_method">
+              <a href = "./out/root_finders.html#.bisection_method">bisection</a>;
+            </li>
+
+            <li id = "root_finder_calculator_regula_falsi">
+              <a href = "./out/root_finders.html#.regula_falsi">regula-falsi</a>.
+            </li>
+          </ul>
+        </li>
+
+        <li id = "root_finder_calculator_non_bracketed_methods">
+          Non-bracketed methods:
+
+          <ul id = "root_finder_calculator_non_bracketed_methods_indent_1">
+            <li id = "root_finder_calculator_secant_method">
+              <a href = "./out/root_finders.html#.secant_method">secant method</a>;
+            </li>
+
+            <li id = "root_finder_calculator_newtons_method">
+              <a href = "./out/root_finders.html#.newtons_method">Newton's method</a>;
+            </li>
+
+            <li id = "root_finder_calculator_modified_newtons_method">
+              <a href = "./out/root_finders.html#.modified_newtons_method">modified Newton's method</a>.
+            </li>
+          </ul>
+        </li>
+      </ul>
+
+      <br>
+
+      <p id = "root_finder_calculator_link">
+        <a href = "./root_finder_calculator.html">Click here</a> for the aforementioned root-finding calculator.
+      </p>
+    </div>
+  </body>
+</html>
